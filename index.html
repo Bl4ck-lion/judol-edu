@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulasi Judi Edukasi</title>
+  <style>
+    body { background: #121212; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; }
+    nav { background: #1e1e1e; display: flex; justify-content: center; padding: 1rem; }
+    nav a { color: #fff; margin: 0 1rem; text-decoration: none; font-weight: bold; padding: 0.5rem 1rem; border-radius: 5px; }
+    nav a.active, nav a:hover { background: #333; }
+    .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .reel { font-size: 3rem; margin: 1rem 0; }
+    button { background: #6200ee; color: #fff; border: none; padding: 0.75rem 1.5rem; font-size: 1rem; border-radius: 5px; cursor: pointer; }
+    button:disabled { background: #555; cursor: not-allowed; }
+    input { padding: 0.5rem; font-size: 1rem; border-radius: 5px; border: none; width: 200px; margin-right: 0.5rem; }
+    #balance { font-size: 1.25rem; margin-bottom: 1rem; display: block; }
+    #notification, #spaceman-result { margin-top: 1rem; font-size: 1.25rem; min-height: 1.5rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#" id="nav-deposit" onclick="show('deposit')" class="active">💸 Deposit</a>
+    <a href="#" id="nav-slot" onclick="show('slot')">🎰 Slot Zeus</a>
+    <a href="#" id="nav-spaceman" onclick="show('spaceman')">🚀 Spaceman</a>
+    <a href="#" id="nav-withdraw" onclick="show('withdraw')">🏧 Withdraw</a>
+  </nav>
+  <div class="container">
+    <div id="balance">Saldo: Rp <span id="saldo">0</span></div>
+    
+    <div id="deposit" class="section active">
+      <h2>💸 Deposit</h2>
+      <input type="number" id="deposit-amt" placeholder="Masukkan nominal (min Rp10.000)" />
+      <button onclick="doDeposit()">Deposit</button>
+      <div id="deposit-msg"></div>
+    </div>
+
+    <div id="slot" class="section">
+      <h2>🎰 Slot Zeus</n2>
+      <button id="spin-btn" onclick="spinSlot()">Spin (Rp1.000)</button>
+      <div id="reels" class="reel">🍒 🍋 🍊</div>
+      <div id="notification"></div>
+    </div>
+
+    <div id="spaceman" class="section">
+      <h2>🚀 Spaceman</h2>
+      <button id="launch-btn" onclick="launchSpaceman()">Launch (Rp1.000)</button>
+      <button id="cashout-btn" onclick="cashOut()" disabled>Cash Out</button>
+      <div id="spaceman-status" class="reel">x1.00</div>
+      <div id="spaceman-result"></div>
+    </div>
+
+    <div id="withdraw" class="section">
+      <h2>🏧 Withdraw</h2>
+      <input type="number" id="withdraw-amt" placeholder="Nominal (min Rp50.000)" />
+      <button onclick="doWithdraw()">Withdraw</button>
+      <div id="withdraw-msg"></div>
+    </div>
+  </div>
+
+  <script>
+    let saldo = 0;
+    let spacemanInterval, currentMultiplier, crashPoint;
+    const symbols = ['🍒','🍋','🔔','💎','7️⃣'];
+
+    function updateSaldo() { document.getElementById('saldo').innerText = saldo; }
+    function setNav(active) {
+      ['deposit','slot','spaceman','withdraw'].forEach(id => {
+        document.getElementById('nav-'+id).classList.toggle('active', id===active);
+      });
+    }
+    function show(id) {
+      setNav(id);
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      clearMessages();
+    }
+    function clearMessages() {
+      ['deposit-msg','notification','spaceman-result','withdraw-msg'].forEach(id => document.getElementById(id).innerText='');
+    }
+
+    function doDeposit() {
+      let amt = parseInt(document.getElementById('deposit-amt').value);
+      if (amt>=10000) { saldo+=amt; updateSaldo(); document.getElementById('deposit-msg').innerText='Deposit berhasil!'; }
+      else document.getElementById('deposit-msg').innerText='Minimal deposit Rp10.000';
+    }
+
+    function spinSlot() {
+      clearMessages();
+      if (saldo<1000) return document.getElementById('notification').innerText='Saldo < Rp1.000';
+      saldo-=1000; updateSaldo();
+      let reels = document.getElementById('reels');
+      let t=0; let iv=setInterval(()=> {
+        reels.innerText = `${rand()} ${rand()} ${rand()}`; if(++t>10) clearInterval(iv);
+      },100);
+      setTimeout(()=>{
+        let a=rand(),b=rand(),c=rand(); reels.innerText=`${a} ${b} ${c}`;
+        document.getElementById('notification').innerText=(a===b&&b===c)? '🎉 Menang Rp5.000':'😢 Kalah';
+        if(a===b&&b===c) { saldo+=5000; updateSaldo(); }
+      },1200);
+    }
+    function rand() { return symbols[Math.floor(Math.random()*symbols.length)]; }
+
+    function launchSpaceman() {
+      clearMessages();
+      if (saldo<1000) return document.getElementById('spaceman-result').innerText='Saldo < Rp1.000';
+      saldo-=1000; updateSaldo();
+      currentMultiplier=1.00;
+      crashPoint=1.5+Math.random()*5;
+      document.getElementById('launch-btn').disabled=true;
+      document.getElementById('cashout-btn').disabled=false;
+      spacemanInterval=setInterval(()=>{
+        currentMultiplier+=0.1;
+        document.getElementById('spaceman-status').innerText=`x${currentMultiplier.toFixed(2)}`;
+        if (currentMultiplier>=crashPoint) {
+          clearInterval(spacemanInterval);
+          document.getElementById('spaceman-result').innerText='💥 Crash! Kalah';
+          resetSpaceman();
+        }
+      },200);
+    }
+
+    function cashOut() {
+      clearInterval(spacemanInterval);
+      let profit=Math.floor(currentMultiplier*1000);
+      saldo+=profit; updateSaldo();
+      document.getElementById('spaceman-result').innerText=`✅ Cash Out! +Rp${profit}`;
+      resetSpaceman();
+    }
+    function resetSpaceman() {
+      document.getElementById('launch-btn').disabled=false;
+      document.getElementById('cashout-btn').disabled=true;
+      currentMultiplier=1.00;
+      document.getElementById('spaceman-status').innerText='x1.00';
+    }
+
+    function doWithdraw() {
+      let amt=parseInt(document.getElementById('withdraw-amt').value);
+      if (!amt||amt<50000) return document.getElementById('withdraw-msg').innerText='Minimal Rp50.000';
+      if (amt>saldo) return document.getElementById('withdraw-msg').innerText='Saldo tidak cukup';
+      saldo-=amt; updateSaldo();
+      document.getElementById('withdraw-msg').innerText='Withdraw berhasil (simulasi)';
+    }
+
+    show('deposit');
+  </script>
+</body>
+</html>
