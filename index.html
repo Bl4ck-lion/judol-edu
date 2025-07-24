@@ -5,145 +5,786 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Simulasi Judi Edukasi</title>
   <style>
-    body { background: #121212; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; }
-    nav { background: #1e1e1e; display: flex; justify-content: center; padding: 1rem; }
-    nav a { color: #fff; margin: 0 1rem; text-decoration: none; font-weight: bold; padding: 0.5rem 1rem; border-radius: 5px; }
-    nav a.active, nav a:hover { background: #333; }
-    .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-    .section { display: none; }
-    .section.active { display: block; }
-    .reel { font-size: 3rem; margin: 1rem 0; }
-    button { background: #6200ee; color: #fff; border: none; padding: 0.75rem 1.5rem; font-size: 1rem; border-radius: 5px; cursor: pointer; }
-    button:disabled { background: #555; cursor: not-allowed; }
-    input { padding: 0.5rem; font-size: 1rem; border-radius: 5px; border: none; width: 200px; margin-right: 0.5rem; }
-    #balance { font-size: 1.25rem; margin-bottom: 1rem; display: block; }
-    #notification, #spaceman-result { margin-top: 1rem; font-size: 1.25rem; min-height: 1.5rem; }
+    body { 
+      background: #121212; 
+      color: #fff; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      margin: 0; 
+      padding: 0;
+      background-image: radial-gradient(circle at 10% 20%, rgba(40, 40, 60, 0.8) 0%, rgba(10, 10, 20, 0.9) 90%);
+    }
+    
+    nav { 
+      background: linear-gradient(to right, #1a1a2e, #16213e, #0f3460); 
+      display: flex; 
+      justify-content: center; 
+      padding: 1rem; 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    nav a { 
+      color: #fff; 
+      margin: 0 0.5rem; 
+      text-decoration: none; 
+      font-weight: bold; 
+      padding: 0.75rem 1.5rem; 
+      border-radius: 30px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    nav a.active, nav a:hover { 
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      box-shadow: 0 0 15px rgba(98, 0, 238, 0.6);
+      transform: translateY(-2px);
+    }
+    
+    .container { 
+      max-width: 900px; 
+      margin: 2rem auto; 
+      padding: 0 1.5rem; 
+    }
+    
+    .section { 
+      display: none; 
+      background: rgba(30, 30, 46, 0.85);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+    
+    .section.active { 
+      display: block; 
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .reel-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 2rem 0;
+      perspective: 1000px;
+    }
+    
+    .reel {
+      width: 120px;
+      height: 120px;
+      background: rgba(40, 40, 70, 0.8);
+      border-radius: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 4.5rem;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 5px 15px rgba(0, 0, 0, 0.3);
+      border: 3px solid rgba(255, 215, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+    }
+    
+    .reel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.1) 100%);
+      z-index: 1;
+    }
+    
+    .reel-inner {
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    
+    button { 
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: #fff; 
+      border: none; 
+      padding: 1rem 2rem; 
+      font-size: 1.1rem; 
+      border-radius: 50px; 
+      cursor: pointer; 
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(37, 117, 252, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    button:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(37, 117, 252, 0.6);
+    }
+    
+    button:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+    
+    button:disabled { 
+      background: #555; 
+      cursor: not-allowed;
+      opacity: 0.7;
+      box-shadow: none;
+    }
+    
+    input { 
+      padding: 0.8rem 1.2rem; 
+      font-size: 1rem; 
+      border-radius: 50px; 
+      border: none; 
+      width: 250px; 
+      margin-right: 0.5rem; 
+      background: rgba(50, 50, 70, 0.8);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+    
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    input:focus {
+      outline: none;
+      border: 1px solid #6a11cb;
+      box-shadow: 0 0 10px rgba(106, 17, 203, 0.5);
+    }
+    
+    #balance { 
+      font-size: 1.4rem; 
+      margin-bottom: 1.5rem; 
+      display: block; 
+      text-align: center;
+      padding: 1rem;
+      background: rgba(40, 40, 60, 0.7);
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      font-weight: bold;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    #balance span {
+      color: #ffd700;
+      font-size: 1.6rem;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    
+    .notification-box {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 15px;
+      font-size: 1.2rem;
+      text-align: center;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(30, 30, 50, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .win { 
+      background: linear-gradient(135deg, rgba(46, 204, 113, 0.3) 0%, rgba(39, 174, 96, 0.3) 100%);
+      color: #2ecc71;
+      text-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+    }
+    
+    .lose { 
+      background: linear-gradient(135deg, rgba(231, 76, 60, 0.3) 0%, rgba(192, 57, 43, 0.3) 100%);
+      color: #e74c3c;
+      text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+    }
+    
+    .info { 
+      background: linear-gradient(135deg, rgba(52, 152, 219, 0.3) 0%, rgba(41, 128, 185, 0.3) 100%);
+      color: #3498db;
+      text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      background: linear-gradient(90deg, #ff8a00, #e52e71, #6a11cb, #2575fc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .bet-controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .bet-btn {
+      padding: 0.8rem 1.5rem;
+      background: rgba(60, 60, 90, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .bet-btn:hover {
+      background: rgba(80, 80, 120, 0.7);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .bet-btn.active {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .spaceman-display {
+      position: relative;
+      height: 200px;
+      margin: 2rem 0;
+      background: rgba(10, 10, 30, 0.6);
+      border-radius: 15px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    .spaceman-ship {
+      position: absolute;
+      left: 50px;
+      bottom: 0;
+      font-size: 4rem;
+      transform: translateY(0);
+      transition: transform 0.5s ease;
+      filter: drop-shadow(0 0 10px rgba(52, 152, 219, 0.8));
+    }
+    
+    .explosion {
+      position: absolute;
+      font-size: 8rem;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      transition: all 0.5s ease;
+    }
+    
+    .cash-out-value {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #2ecc71;
+      text-shadow: 0 0 10px rgba(46, 204, 113, 0.8);
+      background: rgba(0, 0, 0, 0.5);
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+    }
+    
+    .game-rules {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: rgba(40, 40, 60, 0.5);
+      border-radius: 15px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    
+    @keyframes reelSpin {
+      0% { transform: rotateX(0); }
+      100% { transform: rotateX(720deg); }
+    }
+    
+    @keyframes winPulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(46, 204, 113, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes spacemanFly {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-180px); }
+    }
+    
+    @keyframes multiplierPulse {
+      0% { text-shadow: 0 0 5px rgba(46, 204, 113, 0.5); }
+      50% { text-shadow: 0 0 20px rgba(46, 204, 113, 1); }
+      100% { text-shadow: 0 0 5px rgba(46, 204, 113, 0.5); }
+    }
+    
+    .reel.spinning {
+      animation: reelSpin 0.6s cubic-bezier(0.3, 0.7, 0.2, 1) forwards;
+    }
+    
+    .reel.win {
+      animation: winPulse 1s ease;
+    }
+    
+    .multiplier-pulse {
+      animation: multiplierPulse 1s infinite;
+    }
+    
+    .spaceman-flying {
+      animation: spacemanFly 0.2s linear forwards;
+    }
+    
+    .explosion.active {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    @media (max-width: 768px) {
+      nav { flex-wrap: wrap; }
+      nav a { margin: 0.25rem; padding: 0.6rem 1rem; font-size: 0.9rem; }
+      .reel { width: 80px; height: 80px; font-size: 3.5rem; }
+      .bet-controls { flex-direction: column; align-items: center; }
+      .section { padding: 1.5rem; }
+    }
   </style>
 </head>
 <body>
   <nav>
     <a href="#" id="nav-deposit" onclick="show('deposit')" class="active">💸 Deposit</a>
-    <a href="#" id="nav-slot" onclick="show('slot')">🎰 Slot Zeus</a>
+    <a href="#" id="nav-slot" onclick="show('slot')">🀄 Slot Mahjong</a>
     <a href="#" id="nav-spaceman" onclick="show('spaceman')">🚀 Spaceman</a>
     <a href="#" id="nav-withdraw" onclick="show('withdraw')">🏧 Withdraw</a>
   </nav>
+  
   <div class="container">
-    <div id="balance">Saldo: Rp <span id="saldo">0</span></div>
+    <div id="balance">💰 Saldo: Rp <span id="saldo">0</span></div>
     
     <div id="deposit" class="section active">
-      <h2>💸 Deposit</h2>
-      <input type="number" id="deposit-amt" placeholder="Masukkan nominal (min Rp10.000)" />
-      <button onclick="doDeposit()">Deposit</button>
-      <div id="deposit-msg"></div>
+      <h2 class="section-title">💸 Deposit</h2>
+      <div style="text-align: center;">
+        <input type="number" id="deposit-amt" placeholder="Masukkan nominal (min Rp10.000)" />
+        <button onclick="doDeposit()">Deposit</button>
+        <div id="deposit-msg" class="notification-box"></div>
+      </div>
+      
+      <div class="game-rules">
+        <p><strong>Informasi Deposit:</strong></p>
+        <p>• Minimal deposit Rp10.000</p>
+        <p>• Saldo akan ditambahkan secara instan setelah deposit berhasil</p>
+        <p>• Simulasi ini hanya untuk tujuan edukasi, tidak melibatkan uang sungguhan</p>
+      </div>
     </div>
 
     <div id="slot" class="section">
-      <h2>🎰 Slot Zeus</n2>
-      <button id="spin-btn" onclick="spinSlot()">Spin (Rp1.000)</button>
-      <div id="reels" class="reel">🍒 🍋 🍊</div>
-      <div id="notification"></div>
+      <h2 class="section-title">🀄 Slot Mahjong</h2>
+      <div style="text-align: center;">
+        <button id="spin-btn" onclick="spinSlot()">🎰 Spin (Rp1.000)</button>
+      </div>
+      
+      <div class="reel-container">
+        <div class="reel" id="reel1"><div class="reel-inner">🀀</div></div>
+        <div class="reel" id="reel2"><div class="reel-inner">🀀</div></div>
+        <div class="reel" id="reel3"><div class="reel-inner">🀀</div></div>
+      </div>
+      
+      <div id="notification" class="notification-box">Tekan tombol Spin untuk memulai</div>
+      
+      <div class="game-rules">
+        <p><strong>Cara Bermain:</strong></p>
+        <p>• Setiap putaran membutuhkan Rp1.000</p>
+        <p>• Jika mendapatkan 3 simbol yang sama: Menang Rp5.000</p>
+        <p>• Jika mendapatkan 2 simbol yang sama: Menang Rp2.000</p>
+        <p>• Simbol Mahjong: 🀇 🀈 🀉 🀊 🀋 🀌 🀍 🀎 🀏 🀀 🀁 🀂 🀃</p>
+      </div>
     </div>
 
     <div id="spaceman" class="section">
-      <h2>🚀 Spaceman</h2>
-      <button id="launch-btn" onclick="launchSpaceman()">Launch (Rp1.000)</button>
-      <button id="cashout-btn" onclick="cashOut()" disabled>Cash Out</button>
-      <div id="spaceman-status" class="reel">x1.00</div>
-      <div id="spaceman-result"></div>
+      <h2 class="section-title">🚀 Spaceman</h2>
+      
+      <div class="bet-controls">
+        <div class="bet-btn" onclick="setBet(1000)">Rp1.000</div>
+        <div class="bet-btn" onclick="setBet(2000)">Rp2.000</div>
+        <div class="bet-btn" onclick="setBet(5000)">Rp5.000</div>
+        <div class="bet-btn" onclick="setBet(10000)">Rp10.000</div>
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <input type="number" id="spaceman-bet" placeholder="Taruhan custom (min Rp1.000)" value="1000" min="1000" />
+        <button id="launch-btn" onclick="launchSpaceman()">🚀 Launch (Rp1.000)</button>
+      </div>
+      
+      <div class="spaceman-display">
+        <div class="cash-out-value" id="spaceman-status">x1.00</div>
+        <div class="spaceman-ship" id="spaceman-ship">🚀</div>
+        <div class="explosion" id="explosion">💥</div>
+      </div>
+      
+      <div style="text-align: center; margin-top: 1.5rem;">
+        <button id="cashout-btn" onclick="cashOut()" disabled>💰 Cash Out</button>
+      </div>
+      
+      <div id="spaceman-result" class="notification-box">Tekan Launch untuk memulai permainan</div>
+      
+      <div class="game-rules">
+        <p><strong>Cara Bermain Spaceman:</strong></p>
+        <p>• Tentukan jumlah taruhan sebelum launch</p>
+        <p>• Setelah launch, pesawat akan mulai terbang dan multiplier akan naik</p>
+        <p>• Cash out sebelum pesawat meledak untuk mendapatkan kemenangan</p>
+        <p>• Pesawat akan meledak secara acak antara x1.5 sampai x6.0</p>
+      </div>
     </div>
 
     <div id="withdraw" class="section">
-      <h2>🏧 Withdraw</h2>
-      <input type="number" id="withdraw-amt" placeholder="Nominal (min Rp50.000)" />
-      <button onclick="doWithdraw()">Withdraw</button>
-      <div id="withdraw-msg"></div>
+      <h2 class="section-title">🏧 Withdraw</h2>
+      <div style="text-align: center;">
+        <input type="number" id="withdraw-amt" placeholder="Nominal (min Rp50.000)" />
+        <button onclick="doWithdraw()">Withdraw</button>
+        <div id="withdraw-msg" class="notification-box"></div>
+      </div>
+      
+      <div class="game-rules">
+        <p><strong>Informasi Withdraw:</strong></p>
+        <p>• Minimal withdraw Rp50.000</p>
+        <p>• Saldo harus mencukupi untuk melakukan withdraw</p>
+        <p>• Simulasi ini hanya untuk tujuan edukasi, tidak melibatkan uang sungguhan</p>
+      </div>
     </div>
   </div>
+  
+  <footer>
+    <p>⚠️ Simulasi ini hanya untuk tujuan edukasi. Judi dapat menyebabkan ketagihan dan kerugian finansial.</p>
+    <p>© 2023 Simulasi Judi Edukasi - Untuk pembelajaran semata</p>
+  </footer>
 
   <script>
     let saldo = 0;
-    let spacemanInterval, currentMultiplier, crashPoint;
-    const symbols = ['🍒','🍋','🔔','💎','7️⃣'];
-
-    function updateSaldo() { document.getElementById('saldo').innerText = saldo; }
+    let spacemanInterval, currentMultiplier, crashPoint, currentBet = 1000;
+    const symbols = ['🀇','🀈','🀉','🀊','🀋','🀌','🀍','🀎','🀏','🀀','🀁','🀂','🀃'];
+    const reelElements = ['reel1', 'reel2', 'reel3'];
+    
+    function updateSaldo() { 
+      document.getElementById('saldo').innerText = saldo.toLocaleString('id-ID'); 
+    }
+    
     function setNav(active) {
       ['deposit','slot','spaceman','withdraw'].forEach(id => {
         document.getElementById('nav-'+id).classList.toggle('active', id===active);
       });
     }
+    
     function show(id) {
       setNav(id);
       document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
       document.getElementById(id).classList.add('active');
       clearMessages();
     }
+    
     function clearMessages() {
-      ['deposit-msg','notification','spaceman-result','withdraw-msg'].forEach(id => document.getElementById(id).innerText='');
+      ['deposit-msg','notification','spaceman-result','withdraw-msg'].forEach(id => {
+        const el = document.getElementById(id);
+        el.innerText = '';
+        el.className = 'notification-box';
+      });
     }
 
     function doDeposit() {
       let amt = parseInt(document.getElementById('deposit-amt').value);
-      if (amt>=10000) { saldo+=amt; updateSaldo(); document.getElementById('deposit-msg').innerText='Deposit berhasil!'; }
-      else document.getElementById('deposit-msg').innerText='Minimal deposit Rp10.000';
+      const msgEl = document.getElementById('deposit-msg');
+      
+      if (isNaN(amt)) {
+        msgEl.innerText = 'Masukkan nominal yang valid';
+        msgEl.className = 'notification-box lose';
+        return;
+      }
+      
+      if (amt >= 10000) { 
+        saldo += amt; 
+        updateSaldo(); 
+        msgEl.innerText = 'Deposit berhasil! Saldo bertambah Rp' + amt.toLocaleString('id-ID');
+        msgEl.className = 'notification-box win';
+      } else {
+        msgEl.innerText = 'Minimal deposit Rp10.000';
+        msgEl.className = 'notification-box lose';
+      }
     }
 
     function spinSlot() {
       clearMessages();
-      if (saldo<1000) return document.getElementById('notification').innerText='Saldo < Rp1.000';
-      saldo-=1000; updateSaldo();
-      let reels = document.getElementById('reels');
-      let t=0; let iv=setInterval(()=> {
-        reels.innerText = `${rand()} ${rand()} ${rand()}`; if(++t>10) clearInterval(iv);
-      },100);
-      setTimeout(()=>{
-        let a=rand(),b=rand(),c=rand(); reels.innerText=`${a} ${b} ${c}`;
-        document.getElementById('notification').innerText=(a===b&&b===c)? '🎉 Menang Rp5.000':'😢 Kalah';
-        if(a===b&&b===c) { saldo+=5000; updateSaldo(); }
-      },1200);
+      const notification = document.getElementById('notification');
+      
+      if (saldo < 1000) {
+        notification.innerText = 'Saldo tidak mencukupi (min Rp1.000)';
+        notification.className = 'notification-box lose';
+        return;
+      }
+      
+      saldo -= 1000;
+      updateSaldo();
+      
+      // Disable spin button during animation
+      document.getElementById('spin-btn').disabled = true;
+      
+      // Reset reel classes
+      reelElements.forEach(id => {
+        const reel = document.getElementById(id);
+        reel.classList.remove('win');
+        reel.classList.add('spinning');
+      });
+      
+      // Generate results
+      const results = [];
+      for (let i = 0; i < 3; i++) {
+        results.push(symbols[Math.floor(Math.random() * symbols.length)]);
+      }
+      
+      // Animate reels
+      let completed = 0;
+      reelElements.forEach((id, index) => {
+        const reel = document.getElementById(id);
+        
+        // Simulate spinning animation
+        let spinCount = 0;
+        const spinInterval = setInterval(() => {
+          reel.querySelector('.reel-inner').innerText = symbols[Math.floor(Math.random() * symbols.length)];
+          spinCount++;
+          
+          if (spinCount > 10 + index * 3) {
+            clearInterval(spinInterval);
+            reel.querySelector('.reel-inner').innerText = results[index];
+            reel.classList.remove('spinning');
+            
+            completed++;
+            if (completed === 3) {
+              checkSlotResult(results);
+              document.getElementById('spin-btn').disabled = false;
+            }
+          }
+        }, 100 + index * 50);
+      });
     }
-    function rand() { return symbols[Math.floor(Math.random()*symbols.length)]; }
-
+    
+    function checkSlotResult(results) {
+      const notification = document.getElementById('notification');
+      
+      if (results[0] === results[1] && results[1] === results[2]) {
+        // Three of a kind
+        saldo += 5000;
+        notification.innerText = '🎉 Jackpot! 3 simbol sama! Menang Rp5.000';
+        notification.className = 'notification-box win';
+        
+        // Add win animation to reels
+        reelElements.forEach(id => {
+          document.getElementById(id).classList.add('win');
+        });
+      } else if (results[0] === results[1] || results[0] === results[2] || results[1] === results[2]) {
+        // Two of a kind
+        saldo += 2000;
+        notification.innerText = '🎉 Menang! 2 simbol sama! Menang Rp2.000';
+        notification.className = 'notification-box win';
+        
+        // Find which reels match
+        if (results[0] === results[1]) {
+          document.getElementById('reel1').classList.add('win');
+          document.getElementById('reel2').classList.add('win');
+        } else if (results[0] === results[2]) {
+          document.getElementById('reel1').classList.add('win');
+          document.getElementById('reel3').classList.add('win');
+        } else {
+          document.getElementById('reel2').classList.add('win');
+          document.getElementById('reel3').classList.add('win');
+        }
+      } else {
+        notification.innerText = '😢 Tidak ada kombinasi yang menang';
+        notification.className = 'notification-box lose';
+      }
+      
+      updateSaldo();
+    }
+    
+    function setBet(amount) {
+      if (amount < 1000) return;
+      
+      currentBet = amount;
+      document.getElementById('spaceman-bet').value = amount;
+      document.getElementById('launch-btn').innerText = `🚀 Launch (Rp${amount.toLocaleString('id-ID')})`;
+      
+      // Highlight active bet button
+      document.querySelectorAll('.bet-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (parseInt(btn.innerText.replace('Rp', '')) === amount) {
+          btn.classList.add('active');
+        }
+      });
+    }
+    
     function launchSpaceman() {
       clearMessages();
-      if (saldo<1000) return document.getElementById('spaceman-result').innerText='Saldo < Rp1.000';
-      saldo-=1000; updateSaldo();
-      currentMultiplier=1.00;
-      crashPoint=1.5+Math.random()*5;
-      document.getElementById('launch-btn').disabled=true;
-      document.getElementById('cashout-btn').disabled=false;
-      spacemanInterval=setInterval(()=>{
-        currentMultiplier+=0.1;
-        document.getElementById('spaceman-status').innerText=`x${currentMultiplier.toFixed(2)}`;
-        if (currentMultiplier>=crashPoint) {
-          clearInterval(spacemanInterval);
-          document.getElementById('spaceman-result').innerText='💥 Crash! Kalah';
-          resetSpaceman();
+      const resultEl = document.getElementById('spaceman-result');
+      const betInput = document.getElementById('spaceman-bet');
+      const ship = document.getElementById('spaceman-ship');
+      const explosion = document.getElementById('explosion');
+      
+      // Get bet amount
+      let betAmount = parseInt(betInput.value);
+      if (isNaN(betAmount) betAmount = currentBet;
+      if (betAmount < 1000) betAmount = 1000;
+      
+      setBet(betAmount);
+      
+      if (saldo < betAmount) {
+        resultEl.innerText = 'Saldo tidak mencukupi untuk taruhan ini';
+        resultEl.className = 'notification-box lose';
+        return;
+      }
+      
+      // Deduct bet amount
+      saldo -= betAmount;
+      updateSaldo();
+      
+      // Reset display
+      ship.className = 'spaceman-ship';
+      explosion.className = 'explosion';
+      document.getElementById('spaceman-status').className = 'cash-out-value';
+      
+      // Set initial values
+      currentMultiplier = 1.00;
+      crashPoint = (1.5 + Math.random() * 4.5).toFixed(2); // Between 1.50 and 6.00
+      
+      // Enable/disable buttons
+      document.getElementById('launch-btn').disabled = true;
+      betInput.disabled = true;
+      document.getElementById('cashout-btn').disabled = false;
+      
+      // Start flying
+      ship.classList.add('spaceman-flying');
+      
+      // Start multiplier increase
+      spacemanInterval = setInterval(() => {
+        currentMultiplier = parseFloat((currentMultiplier + 0.05).toFixed(2));
+        const statusEl = document.getElementById('spaceman-status');
+        statusEl.innerText = `x${currentMultiplier.toFixed(2)}`;
+        
+        // Add pulse effect when multiplier gets high
+        if (currentMultiplier > 3.0) {
+          statusEl.classList.add('multiplier-pulse');
         }
-      },200);
+        
+        if (currentMultiplier >= crashPoint) {
+          clearInterval(spacemanInterval);
+          explosion.classList.add('active');
+          ship.style.display = 'none';
+          
+          setTimeout(() => {
+            resultEl.innerText = `💥 Crash di x${crashPoint}! Anda kehilangan taruhan`;
+            resultEl.className = 'notification-box lose';
+            resetSpaceman();
+          }, 800);
+        }
+      }, 200);
     }
-
+    
     function cashOut() {
       clearInterval(spacemanInterval);
-      let profit=Math.floor(currentMultiplier*1000);
-      saldo+=profit; updateSaldo();
-      document.getElementById('spaceman-result').innerText=`✅ Cash Out! +Rp${profit}`;
+      
+      const ship = document.getElementById('spaceman-ship');
+      const betInput = document.getElementById('spaceman-bet');
+      const resultEl = document.getElementById('spaceman-result');
+      
+      const betAmount = parseInt(betInput.value);
+      const profit = Math.floor(currentMultiplier * betAmount);
+      
+      saldo += profit;
+      updateSaldo();
+      
+      ship.style.display = 'none';
+      
+      resultEl.innerText = `✅ Cash Out di x${currentMultiplier.toFixed(2)}! Menang Rp${profit.toLocaleString('id-ID')}`;
+      resultEl.className = 'notification-box win';
+      
       resetSpaceman();
     }
+    
     function resetSpaceman() {
-      document.getElementById('launch-btn').disabled=false;
-      document.getElementById('cashout-btn').disabled=true;
-      currentMultiplier=1.00;
-      document.getElementById('spaceman-status').innerText='x1.00';
+      document.getElementById('launch-btn').disabled = false;
+      document.getElementById('spaceman-bet').disabled = false;
+      document.getElementById('cashout-btn').disabled = true;
+      
+      // Reset display
+      const ship = document.getElementById('spaceman-ship');
+      const explosion = document.getElementById('explosion');
+      
+      setTimeout(() => {
+        ship.style.display = 'block';
+        ship.className = 'spaceman-ship';
+        explosion.className = 'explosion';
+        document.getElementById('spaceman-status').innerText = 'x1.00';
+        document.getElementById('spaceman-status').className = 'cash-out-value';
+      }, 1000);
     }
-
+    
     function doWithdraw() {
-      let amt=parseInt(document.getElementById('withdraw-amt').value);
-      if (!amt||amt<50000) return document.getElementById('withdraw-msg').innerText='Minimal Rp50.000';
-      if (amt>saldo) return document.getElementById('withdraw-msg').innerText='Saldo tidak cukup';
-      saldo-=amt; updateSaldo();
-      document.getElementById('withdraw-msg').innerText='Withdraw berhasil (simulasi)';
+      let amt = parseInt(document.getElementById('withdraw-amt').value);
+      const msgEl = document.getElementById('withdraw-msg');
+      
+      if (isNaN(amt)) {
+        msgEl.innerText = 'Masukkan nominal yang valid';
+        msgEl.className = 'notification-box lose';
+        return;
+      }
+      
+      if (amt < 50000) {
+        msgEl.innerText = 'Minimal withdraw Rp50.000';
+        msgEl.className = 'notification-box lose';
+        return;
+      }
+      
+      if (amt > saldo) {
+        msgEl.innerText = 'Saldo tidak mencukupi';
+        msgEl.className = 'notification-box lose';
+        return;
+      }
+      
+      saldo -= amt;
+      updateSaldo();
+      msgEl.innerText = 'Withdraw berhasil! Rp' + amt.toLocaleString('id-ID') + ' telah ditarik (simulasi)';
+      msgEl.className = 'notification-box win';
     }
-
+    
+    // Initialize bet controls
+    document.getElementById('spaceman-bet').addEventListener('input', function() {
+      let value = parseInt(this.value);
+      if (!isNaN(value) && value >= 1000) {
+        setBet(value);
+      }
+    });
+    
+    // Set initial bet
+    setBet(1000);
     show('deposit');
   </script>
 </body>
